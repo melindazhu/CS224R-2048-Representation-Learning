@@ -7,8 +7,8 @@ import pygame
 
 # https://github.com/Quentin18/gymnasium-2048/blob/main/scripts/train.py
 
-logging.basicConfig(format="%(levelname)s - %(message)s", level=logging.INFO)
-logger = logging.getLogger(__name__)
+# logging.basicConfig(format="%(levelname)s - %(message)s", level=logging.INFO)
+# logger = logging.getLogger(__name__)
 
 class Env_2048:
     def __init__(self, size, seed):
@@ -19,7 +19,7 @@ class Env_2048:
         self.seed = seed
 
         self.env.reset(seed=self.seed)
-        self.logger = logger.info("Play game %s with size %d", self.env, self.size)
+        print(f"Play game {self.env} with size {self.size}")
 
         self.total_score = 0
         self.current_board = None
@@ -48,16 +48,16 @@ class Env_2048:
         '''
 
         if action is not None:
-            self.logger.info("action: %d", action)
+            print(f"action: {action}")
             obs, reward, terminated, truncated, info = self.env.step(action)
         else:
             obs, reward, terminated, truncated, info = self.env.step(0) # default to up
 
         self.total_score = info["total_score"]
 
-        self.logger.info("game over")
-        self.logger.info("score: %d", info["total_score"])
-        self.logger.info("max: %d", info["max"])
+        print("game over")
+        print(f"score: {info['total_score']}")
+        print(f"max: {info['max']}")
 
         self.current_board = info["board"]
         self.total_score = info["total_score"]
