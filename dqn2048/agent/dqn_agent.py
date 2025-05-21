@@ -1,8 +1,8 @@
 import torch
 import torch.nn as nn
 import numpy as np
-from network import QNetwork
-from replay_buffer import ReplayBuffer
+from dqn2048.agent.qnet import QNetwork
+from dqn2048.agent.replay_buffer import ReplayBuffer
 
 
 class DQNAgent:

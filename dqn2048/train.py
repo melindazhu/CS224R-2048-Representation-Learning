@@ -1,6 +1,5 @@
-import gym
 import numpy as np
-from dqn_agent import DQNAgent
+from dqn2048.agent.dqn_agent import DQNAgent
 
 
 def train(env, agent, config):
@@ -14,7 +13,7 @@ def train(env, agent, config):
 
         while not done:
             action = agent.select_action(state)
-            terminated, info, next_obs, reward = env.step(action)
+            next_obs, reward, terminated, _, info = env.step(action) # `truncated` will be set to False
             next_state = next_obs.flatten()
 
             agent.replay_buffer.push(state, action, reward, next_state, terminated)

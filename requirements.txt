@@ -1,0 +1,5 @@
+torch>=1.12
+gymnasium>=0.29
+pygame>=2.1
+numpy
+git+https://github.com/Quentin18/gymnasium-2048

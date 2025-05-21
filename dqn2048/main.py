@@ -1,16 +1,15 @@
-from dqn_agent import DQNAgent
-from train import train
-from env import Env_2048  # idk if this works, might need to restructure dirs
+from dqn2048.agent.dqn_agent import DQNAgent
+from dqn2048.env.env_2048 import Env_2048
+from dqn2048.train import train
 
 def main():
     size = 4
     seed = 42
     env = Env_2048(size=size, seed=seed)
 
-    # get initial observation to determine input dimension
     obs = env.reset()
-    state_dim = obs.flatten().shape[0]  # should be 16
-    action_dim = 4  # up, right, down, left
+    state_dim = obs.flatten().shape[0]
+    action_dim = 4
 
     config = {
         'lr': 1e-3,

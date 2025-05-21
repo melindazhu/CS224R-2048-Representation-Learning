@@ -50,6 +50,8 @@ class Env_2048:
         if action is not None:
             self.logger.info("action: %d", action)
             obs, reward, terminated, truncated, info = self.env.step(action)
+        else:
+            obs, reward, terminated, truncated, info = self.env.step(0) # default to up
 
         self.total_score = info["total_score"]
 
@@ -59,20 +61,20 @@ class Env_2048:
 
         self.current_board = info["board"]
         self.total_score = info["total_score"]
+        self.info = info
 
-        return terminated, info, obs, reward
-
+        return obs, reward, terminated, False, info
 
     def close(self):
         # Call after done with environment
         self.env.close()
 
-    
     def get_score(self):
         return self.total_score
 
-    def reset(self, seed=self.seed):
-        self.env.reset(seed)
+    def reset(self, seed=None):
+        obs, _ = self.env.reset(seed=seed or self.seed)
+        return obs
 
     def get_current_info(self):
 
