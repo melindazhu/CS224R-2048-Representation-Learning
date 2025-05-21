@@ -27,41 +27,42 @@ class Env_2048:
 
 
     def step(self, action):
-
         '''
         actions = {
-        0 : up
-        1 : right
-        2 : down
-        3 : left
+            0 : up,
+            1 : right,
+            2 : down,
+            3 : left
         }
-        '''
 
-        '''
         info dict contains: 
             board (2D array)
             step_score (int)
             total_score (int)
-            max (int) <- number of tiles on board
+            max (int) <- largest tile
             is_legal (bool)
             illegal_count (int)
         '''
 
         if action is not None:
-            print(f"action: {action}")
+            # we can probably remove this if it gets too verbose
+            print(f"Action taken: {action}")
             obs, reward, terminated, truncated, info = self.env.step(action)
         else:
-            obs, reward, terminated, truncated, info = self.env.step(0) # default to up
+            obs, reward, terminated, truncated, info = self.env.step(0)  # default to up
 
         self.total_score = info["total_score"]
-
-        print("game over")
-        print(f"score: {info['total_score']}")
-        print(f"max: {info['max']}")
-
         self.current_board = info["board"]
-        self.total_score = info["total_score"]
         self.info = info
+
+        # we can probably remove this if it gets too verbose
+        print(f"Step score: {info['step_score']}, Total score: {info['total_score']}, Max tile: {info['max']}")
+
+        # only print game-over message when episode ends
+        if terminated:
+            print("Game over")
+            print(f"Final score: {info['total_score']}")
+            print(f"Largest tile reached: {info['max']}")
 
         return obs, reward, terminated, False, info
 
