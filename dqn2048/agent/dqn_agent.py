@@ -8,6 +8,7 @@ from dqn2048.agent.replay_buffer import ReplayBuffer
 class DQNAgent:
     def __init__(self, state_dim, action_dim, config):
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        print(f"Using device: {self.device}")
 
         self.q_network = QNetwork(state_dim, action_dim).to(self.device)
         self.target_network = QNetwork(state_dim, action_dim).to(self.device)
@@ -53,7 +54,7 @@ class DQNAgent:
             next_q_values = self.target_network(next_states).max(1)[0].unsqueeze(1)
             target = rewards + (1 - dones) * self.gamma * next_q_values
 
-        loss = nn.functional.mse_loss(q_values, target)
+        loss = nn.functional.mse_loss(q_values, target.to(self.device))
         self.optimizer.zero_grad()
         loss.backward()
         self.optimizer.step()

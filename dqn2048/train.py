@@ -22,7 +22,7 @@ def train(env, agent, config):
             agent.train_step()
 
             state = next_state
-            total_reward += reward
+            total_reward += float(reward)
             done = terminated
 
         if episode % config['target_update_freq'] == 0:
