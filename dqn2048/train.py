@@ -1,12 +1,13 @@
 import numpy as np
 from dqn2048.agent.dqn_agent import DQNAgent
+from tqdm import tqdm
 
 
 def train(env, agent, config):
     rewards = []
     total_scores = []
 
-    for episode in range(config['num_episodes']):
+    for episode in tqdm(range(config['num_episodes']), desc="RL Episodes"):
         obs = env.reset()
         state = obs.flatten()  # ensure 1D
         total_reward = 0
