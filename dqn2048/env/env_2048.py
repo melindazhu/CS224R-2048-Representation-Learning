@@ -14,7 +14,7 @@ class Env_2048:
     def __init__(self, size, seed):
       
         self.env_name = "gymnasium_2048:gymnasium_2048/TwentyFortyEight-v0"
-        self.env = gym.make(self.env_name, size=size, render_mode="human")
+        self.env = gym.make(self.env_name, size=size, render_mode=None)
         self.size = size
         self.seed = seed
 
