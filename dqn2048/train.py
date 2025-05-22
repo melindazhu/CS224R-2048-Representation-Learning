@@ -4,6 +4,7 @@ from dqn2048.agent.dqn_agent import DQNAgent
 
 def train(env, agent, config):
     rewards = []
+    total_scores = []
 
     for episode in range(config['num_episodes']):
         obs = env.reset()
@@ -27,5 +28,8 @@ def train(env, agent, config):
             agent.update_target()
 
         rewards.append(total_reward)
+        total_scores.append(info['total_score'])
         print(f"Episode {episode}, Total Score: {info['total_score']}, Max Tile: {info['max']}")
+
+    np.save("episode_scores.npy", total_scores)
     return rewards
