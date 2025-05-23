@@ -1,6 +1,6 @@
 import numpy as np
 from dqn2048.agent.dqn_agent import DQNAgent
-from tqdm import tqdm
+from tqdm import tqdm, trange
 
 
 def train(env, agent, config):
