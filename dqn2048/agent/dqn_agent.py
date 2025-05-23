@@ -7,7 +7,7 @@ from dqn2048.agent.replay_buffer import ReplayBuffer
 
 class DQNAgent:
     def __init__(self, state_dim, action_dim, config):
-        self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        self.device = torch.device("mps" if torch.backends.mps.is_available() else "cpu")
         print(f"Using device: {self.device}")
 
         self.q_network = QNetwork(state_dim, action_dim).to(self.device)
