@@ -2,6 +2,7 @@ import argparse
 from dqn2048.agent.dqn_agent import DQNAgent
 from dqn2048.env.env_2048 import Env_2048
 from dqn2048.train import train
+from dqn2048.evals import plot_metrics
 
 def parse_args():
     parser = argparse.ArgumentParser()
@@ -32,8 +33,10 @@ def main():
     config = vars(args)
 
     agent = DQNAgent(state_dim, action_dim, config)
-    train(env, agent, config)
+    rewards, total_scores, max_tiles, illegal_move_counts = train(env, agent, config)
     env.close()
+
+    plot_metrics(total_scores, max_tiles, illegal_move_counts)
 
 if __name__ == "__main__":
     main()

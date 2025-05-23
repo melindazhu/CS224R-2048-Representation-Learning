@@ -6,8 +6,11 @@ from tqdm import tqdm
 def train(env, agent, config):
     rewards = []
     total_scores = []
+    max_tiles = []
+    illegal_move_counts = []
 
-    for episode in tqdm(range(config['num_episodes']), desc="RL Episodes"):
+    for episode in trange(config['num_episodes'], desc="Training Episodes"):
+        print(f"Episode {episode+1}/{config['num_episodes']}")
         obs = env.reset()
         state = obs.flatten()  # ensure 1D
         total_reward = 0
@@ -30,7 +33,10 @@ def train(env, agent, config):
 
         rewards.append(total_reward)
         total_scores.append(info['total_score'])
-        print(f"Episode {episode}, Total Score: {info['total_score']}, Max Tile: {info['max']}")
+        max_tiles.append(info['max'])
+        illegal_move_counts.append(info['illegal_count'])
+        
+        print(f"\nEpisode {episode}, Total Score: {info['total_score']}, Max Tile: {info['max']}\n")
 
     np.save("episode_scores.npy", total_scores)
-    return rewards
+    return rewards, total_scores, max_tiles, illegal_move_counts
