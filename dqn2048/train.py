@@ -1,6 +1,7 @@
 import numpy as np
 from dqn2048.agent.dqn_agent import DQNAgent
 from tqdm import tqdm, trange
+import gc # garbage collection
 
 
 def train(env, agent, config):
@@ -37,6 +38,9 @@ def train(env, agent, config):
         illegal_move_counts.append(info['illegal_count'])
         
         print(f"\nEpisode {episode}, Total Score: {info['total_score']}, Max Tile: {info['max']}\n")
+
+        if episode % 10 == 0:
+            gc.collect()
 
     np.save("episode_scores.npy", total_scores)
     return rewards, total_scores, max_tiles, illegal_move_counts

@@ -1,6 +1,7 @@
 import argparse
 import logging
 import random
+import numpy as np
 import torch.nn as nn
 import gymnasium as gym
 import pygame
@@ -51,6 +52,10 @@ class Env_2048:
         else:
             obs, reward, terminated, truncated, info = self.env.step(0)  # default to up
 
+        # Decode one-hot encoded obs (shape [4, 4, 16]) -> board of shape [4, 4] with actual tile values
+        obs = np.argmax(obs, axis=-1)
+        obs = np.where(obs > 0, 2 ** obs, 0)
+
         self.total_score = info["total_score"]
         self.current_board = info["board"]
         self.info = info
@@ -63,6 +68,7 @@ class Env_2048:
             print("Game over")
             print(f"Final score: {info['total_score']}")
             print(f"Largest tile reached: {info['max']}")
+            print(f"Illegal move counts: {info['illegal_count']}")
 
         return obs, reward, terminated, False, info
 
@@ -75,6 +81,10 @@ class Env_2048:
 
     def reset(self, seed=None):
         obs, _ = self.env.reset(seed=seed or self.seed)
+
+        # Decode one-hot encoded tiles back to board values
+        obs = np.argmax(obs, axis=-1)  # shape: (4, 4), values: exponents
+        obs = np.where(obs > 0, 2 ** obs, 0)  # convert to actual tile values
         return obs
 
     def get_current_info(self):

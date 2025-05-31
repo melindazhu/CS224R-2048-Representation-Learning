@@ -1,7 +1,8 @@
 import torch
 import torch.nn as nn
 import numpy as np
-from dqn2048.agent.qnet import QNetwork
+# from dqn2048.agent.qnet import QNetwork
+from dqn2048.agent.qnet_cnn import QNetworkWithCNN
 from dqn2048.agent.replay_buffer import ReplayBuffer
 
 
@@ -10,8 +11,8 @@ class DQNAgent:
         self.device = torch.device("mps" if torch.backends.mps.is_available() else "cpu")
         print(f"Using device: {self.device}")
 
-        self.q_network = QNetwork(state_dim, action_dim).to(self.device)
-        self.target_network = QNetwork(state_dim, action_dim).to(self.device)
+        self.q_network = QNetworkWithCNN(state_dim, action_dim).to(self.device)
+        self.target_network = QNetworkWithCNN(state_dim, action_dim).to(self.device)
         self.target_network.load_state_dict(self.q_network.state_dict())
 
         self.optimizer = torch.optim.Adam(self.q_network.parameters(), lr=config['lr'])
