@@ -19,13 +19,25 @@ class QNetworkWithCNN(nn.Module):
             nn.Dropout2d(p=0.1),
         )
 
-        # Flattened CNN output will be 64 * 2 * 2 = 256
-        self.fc_layers = nn.Sequential(
+        self.shared_fc = nn.Sequential(
             nn.Linear(256, 128),
             nn.ReLU(),
-            nn.Dropout(p=0.2),
-            nn.Linear(128, output_dim)
+            nn.Dropout(p=0.2)
         )
+
+        # Auxiliary tasks
+        # 1. Action legality prediction; reduce illegal moves made by the agent
+        self.q_head = nn.Linear(128, output_dim)
+        self.legal_head = nn.Linear(128, output_dim)
+
+        # # Flattened CNN output will be 64 * 2 * 2 = 256
+        # NOTE: used w/o auxiliary tasks
+        # self.fc_layers = nn.Sequential(
+        #     nn.Linear(256, 128),
+        #     nn.ReLU(),
+        #     nn.Dropout(p=0.2),
+        #     nn.Linear(128, output_dim)
+        # )
 
     def forward(self, x):
         # normalize: log2(tile_val) if > 0, else keep as 0 for stability
@@ -41,4 +53,12 @@ class QNetworkWithCNN(nn.Module):
         x = x.view(batch_size, 1, 4, 4)
         x = self.conv_layers(x)
         x = x.view(batch_size, -1)  # Flatten to (batch_size, 256)
-        return self.fc_layers(x)
+        # return self.fc_layers(x)
+        x = self.shared_fc(x) # uncomment the above if not using auxiliary tasks
+
+        # Auxiliary tasks: comment everything below if not using auxiliary tasks
+        q_values = self.q_head(x)
+        legal_logits = self.legal_head(x)
+
+        return q_values, legal_logits
+    

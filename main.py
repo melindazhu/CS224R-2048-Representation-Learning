@@ -19,6 +19,9 @@ def parse_args():
     parser.add_argument('--num_episodes', type=int, default=500)
     parser.add_argument('--seed', type=int, default=42)
     parser.add_argument('--size', type=int, default=4)
+    parser.add_argument('--log_dir', type=str, default='runs/2048')
+    # auxiliary tasks parameters
+    parser.add_argument('--aux-weight', type=float, default=0.1)
 
     return parser.parse_args()
 

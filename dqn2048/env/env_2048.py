@@ -100,3 +100,14 @@ class Env_2048:
         '''
 
         return self.info
+
+    def get_legal_vector(self):
+        board = self.env.unwrapped.board.copy()
+        legal = []
+
+        # https://github.com/Quentin18/gymnasium-2048/blob/dea2448066e88198f87e4767cbe34c3f5ffcd8db/src/gymnasium_2048/envs/twenty_forty_eight.py#L88
+        for action in range(4):
+            _, _, is_legal = self.env.unwrapped.__class__.apply_action(board, action)
+            legal.append(int(is_legal))
+
+        return legal
