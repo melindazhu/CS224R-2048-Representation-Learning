@@ -6,6 +6,7 @@ class QNetworkWithCNN(nn.Module):
     def __init__(self, input_dim, output_dim):
         super().__init__()
         self.output_dim = output_dim
+        self.hidden_dim = 128
 
         # For 4x4 board, reshape 16 input features to (1, 4, 4)
         self.conv_layers = nn.Sequential(
@@ -29,6 +30,15 @@ class QNetworkWithCNN(nn.Module):
         # 1. Action legality prediction; reduce illegal moves made by the agent
         self.q_head = nn.Linear(128, output_dim)
         self.legal_head = nn.Linear(128, output_dim)
+
+        # 2. Future max tile prediction; train the agent to predict the max
+        # tile it will reach by the end of the episode => learn representations that 
+        # are predictive of long-term tile growth
+        self.max_tile_head = nn.Sequential(
+            nn.Linear(self.hidden_dim, 128),
+            nn.ReLU(),
+            nn.Linear(128, 1) # regression output: predicted log2(max_tile)
+        )
 
         # # Flattened CNN output will be 64 * 2 * 2 = 256
         # NOTE: used w/o auxiliary tasks
@@ -59,6 +69,7 @@ class QNetworkWithCNN(nn.Module):
         # Auxiliary tasks: comment everything below if not using auxiliary tasks
         q_values = self.q_head(x)
         legal_logits = self.legal_head(x)
+        max_tile_pred = self.max_tile_head(x)
 
-        return q_values, legal_logits
+        return q_values, legal_logits, max_tile_pred
     

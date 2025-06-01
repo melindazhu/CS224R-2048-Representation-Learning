@@ -6,11 +6,12 @@ from torch.utils.tensorboard import SummaryWriter
 
 
 def train(env, agent, config):
-    writer = SummaryWriter(log_dir=config.get('log_dir', 'runs/2048_cnn_legal_aux'))
+    writer = SummaryWriter(log_dir=config.get('log_dir', 'runs/2048_cnn'))
     rewards = []
     total_scores = []
     max_tiles = []
     illegal_move_counts = []
+    step_count = 0
 
     for episode in trange(config['num_episodes'], desc="Training Episodes"):
         print(f"Episode {episode+1}/{config['num_episodes']}")
@@ -18,6 +19,7 @@ def train(env, agent, config):
         state = obs.flatten()  # ensure 1D
         total_reward = 0
         done = False
+        episode_transitions = []
 
         while not done:
             action = agent.select_action(state)
@@ -25,14 +27,20 @@ def train(env, agent, config):
             next_state = next_obs.flatten()
             reward = float(reward)
             if not info["is_legal"]:
-                reward -= config.get("illegal_move_penalty", 2.0)
-            legal_vec = env.get_legal_vector()
-            agent.replay_buffer.push(state, action, reward, next_state, terminated, legal_vec)
-            agent.train_step()
+                reward -= config.get("illegal_move_penalty", 1.0)
 
+            # auxiliary task changes
+            legal_vec = env.get_legal_vector()
+            episode_transitions.append((state, action, reward, next_state, terminated, legal_vec))
             state = next_state
             total_reward += float(reward)
             done = terminated
+
+        max_tile_log2 = np.log2(info['max']) if info['max'] > 0 else 0.0
+        for s, a, r, ns, d, legal_vec in episode_transitions:
+            agent.replay_buffer.push(s, a, r, ns, d, legal_vec, max_tile_log2)
+            agent.train_step(writer=writer, step=step_count)
+            step_count += 1
 
         if episode % config['target_update_freq'] == 0:
             agent.update_target()

@@ -8,8 +8,8 @@ def parse_args():
     parser = argparse.ArgumentParser()
 
     # Add any config values you want to tune
-    parser.add_argument('--lr', type=float, default=5e-4)
-    parser.add_argument('--gamma', type=float, default=0.99)
+    parser.add_argument('--lr', type=float, default=1e-4)
+    parser.add_argument('--gamma', type=float, default=0.95)
     parser.add_argument('--epsilon_start', type=float, default=1.0)
     parser.add_argument('--epsilon_end', type=float, default=0.05)
     parser.add_argument('--epsilon_decay', type=int, default=20000)
@@ -21,7 +21,8 @@ def parse_args():
     parser.add_argument('--size', type=int, default=4)
     parser.add_argument('--log_dir', type=str, default='runs/2048')
     # auxiliary tasks parameters
-    parser.add_argument('--aux-weight', type=float, default=0.1)
+    parser.add_argument('--legal-aux-weight', type=float, default=0.05)
+    parser.add_argument('--max-tile-aux-weight', type=float, default=0.05)
 
     return parser.parse_args()
 
