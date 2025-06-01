@@ -5,17 +5,28 @@ import numpy as np
 import torch.nn as nn
 import gymnasium as gym
 import pygame
-
-# https://github.com/Quentin18/gymnasium-2048/blob/main/scripts/train.py
+from gymnasium_2048.envs.twenty_forty_eight import TwentyFortyEightEnv
 
 # logging.basicConfig(format="%(levelname)s - %(message)s", level=logging.INFO)
 # logger = logging.getLogger(__name__)
+
+
+# Wrapper around TwentyFortyEightEnv; inherits everything but changes apply_action
+# to resolve the overflow warning
+class SafeTwentyFortyEightEnv(TwentyFortyEightEnv):
+    def apply_action(self, board, action):
+        next_board, step_score, is_legal = super().apply_action(board, action)
+        step_score = float(step_score)
+        return next_board, step_score, is_legal
+
 
 class Env_2048:
     def __init__(self, size, seed):
       
         self.env_name = "gymnasium_2048:gymnasium_2048/TwentyFortyEight-v0"
-        self.env = gym.make(self.env_name, size=size, render_mode=None)
+        # self.env = gym.make(self.env_name, size=size, render_mode=None)
+        # use the new wrapper instead
+        self.env = SafeTwentyFortyEightEnv(size=size, render_mode=None)
         self.size = size
         self.seed = seed
 
@@ -56,8 +67,10 @@ class Env_2048:
         obs = np.argmax(obs, axis=-1)
         obs = np.where(obs > 0, 2 ** obs, 0)
 
-        self.total_score = info["total_score"]
+        self.total_score = float(info["total_score"])
+        info['total_score'] = self.total_score
         self.current_board = info["board"]
+        info['step_score'] = float(info.get('step_score', 0))
         self.info = info
 
         # we can probably remove this if it gets too verbose
@@ -107,7 +120,7 @@ class Env_2048:
 
         # https://github.com/Quentin18/gymnasium-2048/blob/dea2448066e88198f87e4767cbe34c3f5ffcd8db/src/gymnasium_2048/envs/twenty_forty_eight.py#L88
         for action in range(4):
-            _, _, is_legal = self.env.unwrapped.__class__.apply_action(board, action)
+            _, _, is_legal = self.env.unwrapped.apply_action(board, action)
             legal.append(int(is_legal))
 
         return legal
