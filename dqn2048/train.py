@@ -36,7 +36,7 @@ def train(env, agent, config):
             total_reward += float(reward)
             done = terminated
 
-        max_tile_log2 = np.log2(info['max']) if info['max'] > 0 else 0.0
+        max_tile_log2 = info['max'] if info['max'] > 0 else 0.0
         for s, a, r, ns, d, legal_vec in episode_transitions:
             agent.replay_buffer.push(s, a, r, ns, d, legal_vec, max_tile_log2)
             agent.train_step(writer=writer, step=step_count)
