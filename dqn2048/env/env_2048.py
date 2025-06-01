@@ -65,7 +65,11 @@ class Env_2048:
 
         # Decode one-hot encoded obs (shape [4, 4, 16]) -> board of shape [4, 4] with actual tile values
         obs = np.argmax(obs, axis=-1)
-        obs = np.where(obs > 0, 2 ** obs, 0)
+        obs = np.where(obs > 0, np.power(2, obs), 0)
+
+        log_obs = np.zeros_like(obs)
+        log_obs[obs > 0] = np.log2(obs[obs > 0])
+        obs = log_obs
 
         self.total_score = float(info["total_score"])
         info['total_score'] = self.total_score
@@ -96,8 +100,13 @@ class Env_2048:
         obs, _ = self.env.reset(seed=seed or self.seed)
 
         # Decode one-hot encoded tiles back to board values
-        obs = np.argmax(obs, axis=-1)  # shape: (4, 4), values: exponents
-        obs = np.where(obs > 0, np.power(2, obs), 0)  # convert to actual tile values
+        obs = np.argmax(obs, axis=-1)
+        obs = np.where(obs > 0, np.power(2, obs), 0)
+
+        log_obs = np.zeros_like(obs)
+        log_obs[obs > 0] = np.log2(obs[obs > 0])
+        obs = log_obs
+
         return obs
 
     def get_current_info(self):
