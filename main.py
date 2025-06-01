@@ -20,9 +20,12 @@ def parse_args():
     parser.add_argument('--seed', type=int, default=42)
     parser.add_argument('--size', type=int, default=4)
     parser.add_argument('--log_dir', type=str, default='runs/2048')
-    # auxiliary tasks parameters
+    # auxiliary tasks and reward shaping parameters
     parser.add_argument('--legal-aux-weight', type=float, default=0.05)
     parser.add_argument('--max-tile-aux-weight', type=float, default=0.05)
+    parser.add_argument('--illegal-move-penalty', type=float, default=1.0)
+    parser.add_argument('--reward-shaping-max-tile-weight', type=float, default=1.0)
+    parser.add_argument('--compression-shaping-weight', type=float, default=1.0)
 
     return parser.parse_args()
 

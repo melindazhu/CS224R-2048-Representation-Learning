@@ -21,11 +21,30 @@ def train(env, agent, config):
         done = False
         episode_transitions = []
 
+        prev_max_tile = 0 # log2 format
         while not done:
             action = agent.select_action(state)
             next_obs, reward, terminated, _, info = env.step(action) # `truncated` will be set to False
             next_state = next_obs.flatten()
             reward = float(reward)
+            
+            # Reward shaping
+
+            # Give bonuses for reaching high max tile
+            curr_max_tile = info['max']
+            max_tile_shaping_bonus = config.get("reward_shaping_max_tile_weight", 1.0) * (curr_max_tile - prev_max_tile)
+            reward += max_tile_shaping_bonus
+            writer.add_scalar('Reward/ShapingBonus', max_tile_shaping_bonus, step_count)
+            prev_max_tile = curr_max_tile
+
+            # Give bonuses for compression; i.e. reducing the number of non-zero tiles;
+            # merging tiles and freeing up space. Promotes longer-term rewards.
+            nonzero_prev = np.count_nonzero(state)
+            nonzero_next = np.count_nonzero(next_state)
+            compression_bonus = config.get("compression_shaping_weight", 1.0) * (nonzero_prev - nonzero_next)
+            writer.add_scalar('Reward/CompressionBonus', compression_bonus, step_count)
+            reward += compression_bonus
+
             if not info["is_legal"]:
                 reward -= config.get("illegal_move_penalty", 1.0)
 
@@ -53,6 +72,7 @@ def train(env, agent, config):
         max_tiles.append(info['max'])
         writer.add_scalar('IllegalMoves/PerEpisode', info['illegal_count'], episode)
         illegal_move_counts.append(info['illegal_count'])
+        
         
         print(f"\nEpisode {episode}, Total Score: {info['total_score']}, Max Tile: {info['max']}\n")
 
