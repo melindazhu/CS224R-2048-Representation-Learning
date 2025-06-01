@@ -22,7 +22,8 @@ def train(env, agent, config):
         episode_transitions = []
 
         while not done:
-            action = agent.select_action(state)
+            legal_vec = env.get_legal_vector()
+            action = agent.select_action(state, legal_mask=np.array(legal_vec))
             next_obs, reward, terminated, _, info = env.step(action) # `truncated` will be set to False
             next_state = next_obs.flatten()
             reward = float(reward)
@@ -30,7 +31,6 @@ def train(env, agent, config):
                 reward -= config.get("illegal_move_penalty", 1.0)
 
             # auxiliary task changes
-            legal_vec = env.get_legal_vector()
             episode_transitions.append((state, action, reward, next_state, terminated, legal_vec))
             state = next_state
             total_reward += float(reward)

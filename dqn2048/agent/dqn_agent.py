@@ -28,15 +28,18 @@ class DQNAgent:
 
         self.action_dim = action_dim
 
-    def select_action(self, state):
+    def select_action(self, state, legal_mask=None):
         self.total_steps += 1
         eps_threshold = self.epsilon_end + (self.epsilon - self.epsilon_end) * \
                         np.exp(-1. * self.total_steps / self.epsilon_decay)
-        if np.random.rand() < eps_threshold:
-            return np.random.randint(self.action_dim)
+        if np.random.rand() < eps_threshold or legal_mask is None:
+            legal_actions = np.where(legal_mask == 1)[0] if legal_mask is not None else np.arange(self.action_dim)
+            return np.random.choice(legal_actions)
         state = torch.FloatTensor(state).unsqueeze(0).to(self.device)
         with torch.no_grad():
             q_values, _, _ = self.q_network(state)
+        q_values = q_values.squeeze()
+        q_values[legal_mask == 0] = -float('inf')
         return q_values.argmax().item()
 
     def train_step(self, writer=None, step=None):
