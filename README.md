@@ -17,6 +17,8 @@ Before running any of these experiments
 
 5. **Add gradient clipping**: added gradient clipping to help with exploding gradients (a consequence of this is that the loss shoots up). After gradient clipping was added, the loss improved a lot more and was no longer continuously increasing throughout training. [Commit](https://github.com/melindazhu/CS224R-2048-Representation-Learning/commit/96ed500303aa39a8374a1cbc6f2f969bc482cbb1)
 
+6. **Add reward shaping**: Give reward bonuses for reaching higher max tiles after each episode, as well as reducing the number of nonzero tiles present on the board (which means the agent is actively trying to merge more tiles). I think these are good changes and should be keep throughout each experiment because it's relatively simple and helps the agent get more expicit signals on what's rewarded and what's penalized.
+
 ## For experimentation:
 Download the specific commit for the improvement added.
 
