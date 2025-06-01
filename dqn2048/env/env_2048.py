@@ -26,7 +26,7 @@ class Env_2048:
         self.env_name = "gymnasium_2048:gymnasium_2048/TwentyFortyEight-v0"
         # self.env = gym.make(self.env_name, size=size, render_mode=None)
         # use the new wrapper instead
-        self.env = SafeTwentyFortyEightEnv(size=size, render_mode=None)
+        self.env = SafeTwentyFortyEightEnv(size=size, render_mode='human')
         self.size = size
         self.seed = seed
 
@@ -97,7 +97,7 @@ class Env_2048:
 
         # Decode one-hot encoded tiles back to board values
         obs = np.argmax(obs, axis=-1)  # shape: (4, 4), values: exponents
-        obs = np.where(obs > 0, 2 ** obs, 0)  # convert to actual tile values
+        obs = np.where(obs > 0, np.power(2, obs), 0)  # convert to actual tile values
         return obs
 
     def get_current_info(self):
