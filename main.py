@@ -2,7 +2,7 @@ import argparse
 from dqn2048.agent.dqn_agent import DQNAgent
 from dqn2048.env.env_2048 import Env_2048
 from dqn2048.train import train
-from dqn2048.evals import plot_metrics
+from dqn2048.evals import plot_gini_vs_reward_hexbin, plot_gini_vs_reward_heatmap
 
 def parse_args():
     parser = argparse.ArgumentParser()
@@ -43,7 +43,8 @@ def main():
     rewards, total_scores, max_tiles, illegal_move_counts = train(env, agent, config)
     env.close()
 
-    plot_metrics(total_scores, max_tiles, illegal_move_counts)
+    plot_gini_vs_reward_hexbin(gini_values, rewards)
+    plot_gini_vs_reward_heatmap(gini_values, rewards)
 
 if __name__ == "__main__":
     main()
