@@ -40,7 +40,7 @@ def main():
     config = vars(args)
 
     agent = DQNAgent(state_dim, action_dim, config)
-    rewards, total_scores, max_tiles, illegal_move_counts = train(env, agent, config)
+    rewards, total_scores, max_tiles, illegal_move_counts, gini_values = train(env, agent, config)
     env.close()
 
     plot_gini_vs_reward_hexbin(gini_values, rewards)
