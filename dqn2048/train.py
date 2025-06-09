@@ -4,6 +4,16 @@ from tqdm import tqdm, trange
 import gc # garbage collection
 from torch.utils.tensorboard import SummaryWriter
 
+def gini_coefficient(x):
+    x = np.array(x, dtype=np.float64)
+    x = x[x > 0]
+    if len(x) == 0:
+        return 0.0
+    x = np.sort(x)
+    n = len(x)
+    index = np.arange(1, n + 1)
+    return ((np.sum((2 * index - n - 1) * x)) / (n * np.sum(x)))
+
 
 def train(env, agent, config):
     writer = SummaryWriter(log_dir=config.get('log_dir', 'runs/2048_cnn'))
@@ -12,6 +22,7 @@ def train(env, agent, config):
     max_tiles = []
     illegal_move_counts = []
     step_count = 0
+    gini_values = []
 
     for episode in trange(config['num_episodes'], desc="Training Episodes"):
         print(f"Episode {episode+1}/{config['num_episodes']}")
@@ -20,6 +31,7 @@ def train(env, agent, config):
         total_reward = 0
         done = False
         episode_transitions = []
+        gini = None
 
         prev_max_tile = 0 # log2 format
         while not done:
@@ -53,6 +65,8 @@ def train(env, agent, config):
             episode_transitions.append((state, action, reward, next_state, terminated, legal_vec))
             state = next_state
             total_reward += float(reward)
+            board = state
+            gini = gini_coefficient(board.flatten())
             done = terminated
 
         max_tile_log2 = info['max'] if info['max'] > 0 else 0.0
@@ -72,6 +86,8 @@ def train(env, agent, config):
         max_tiles.append(info['max'])
         writer.add_scalar('IllegalMoves/PerEpisode', info['illegal_count'], episode)
         illegal_move_counts.append(info['illegal_count'])
+        writer.add_scalar('GiniScore/PerEpisode', gini, episode)
+        gini_values.append(gini)
         
         
         print(f"\nEpisode {episode}, Total Score: {info['total_score']}, Max Tile: {info['max']}\n")
@@ -81,4 +97,4 @@ def train(env, agent, config):
 
     np.save("episode_scores.npy", total_scores)
     writer.close()
-    return rewards, total_scores, max_tiles, illegal_move_counts
+    return rewards, total_scores, max_tiles, illegal_move_counts, gini_values
