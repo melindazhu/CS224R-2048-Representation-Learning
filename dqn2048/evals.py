@@ -1,36 +1,40 @@
+
 import matplotlib.pyplot as plt
 import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+import numpy as np
+from collections import Counter
+import pandas as pd
 
-def moving_average(data, window_size=10):
-    return np.convolve(data, np.ones(window_size)/window_size, mode='valid')
+def plot_gini_vs_reward_hexbin(gini_values, rewards):
 
-def plot_metrics(total_scores, max_tiles, illegal_counts):
-    episodes = list(range(1, len(total_scores) + 1))
-
-    plt.figure(figsize=(10, 4))
-    plt.plot(episodes, total_scores, label='Total Score')
-    plt.plot(episodes[len(episodes)-len(moving_average(total_scores)):], moving_average(total_scores), label='Smoothed Score', color='green')
-    plt.xlabel("Episode")
-    plt.ylabel("Score")
-    plt.title("Total Score per Episode")
-    plt.legend()
-    plt.grid(True)
+    plt.figure(figsize=(8, 6))
+    hb = plt.hexbin(gini_values, rewards, gridsize=25, cmap='viridis', bins='log')
+    plt.colorbar(hb, label='Log Count')
+    plt.xlabel("Gini Coefficient")
+    plt.ylabel("Reward")
+    plt.title("Hexbin Heatmap: Gini vs Reward")
+    plt.tight_layout()
+    plt.savefig("gini_reward_hexbin.png")
     plt.show()
 
-    plt.figure(figsize=(10, 4))
-    plt.plot(episodes, max_tiles, label='Max Tile', color='orange')
-    plt.xlabel("Episode")
-    plt.ylabel("Max Tile")
-    plt.title("Max Tile per Episode")
-    plt.grid(True)
-    plt.legend()
-    plt.show()
 
-    plt.figure(figsize=(10, 4))
-    plt.plot(episodes, illegal_counts, label='Illegal Moves', color='red')
-    plt.xlabel("Episode")
-    plt.ylabel("Illegal Moves")
-    plt.title("Illegal Moves per Episode")
-    plt.grid(True)
-    plt.legend()
+def plot_gini_vs_reward_heatmap(gini_values, rewards):
+    df = pd.DataFrame({
+        'Gini': np.round(gini_values, 2),
+        'Reward': rewards
+    })
+
+    pivot = df.groupby('Gini')['Reward'].mean().reset_index()
+    pivot['Dummy'] = 'avg'
+    heatmap_data = pivot.pivot(index='Gini', columns='Dummy', values='Reward')
+
+    plt.figure(figsize=(6, 8))
+    sns.heatmap(heatmap_data, annot=False, cmap='YlGnBu', cbar_kws={'label': 'Avg Reward'})
+    plt.title("Heatmap of Avg Reward by Gini Score")
+    plt.xlabel("")
+    plt.ylabel("Gini Coefficient")
+    plt.tight_layout()
+    plt.savefig("gini_reward_heatmap.png")
     plt.show()
